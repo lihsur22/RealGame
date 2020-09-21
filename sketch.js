@@ -1,6 +1,8 @@
-var dog, dogImg, hapDogImg, fuudS, dogDB;
-var db, dbFuudYield;
+var dog, dogImg, hapDogImg, foodS, lastFed, fedTime;
+var db, foodStock, pseftikoPatoma;
 var happyTimer = 0;
+var feed, addFood;
+var foodObj;
 
 function preload()
 {
@@ -9,88 +11,92 @@ function preload()
 }
 
 function setup() {
-	createCanvas(500, 500);
+	createCanvas(700, 500);
 
   db = firebase.database();
-  dbFuudYield = db.ref("Dog");
-  dbFuudYield.on("value",readDB, showErr);
 
-  dog = createSprite(250,280,10,10);
+  foodObj = new Food();
+
+  foodStock = db.ref('food');
+  foodStock.on("value",readDB);
+
+  dog = createSprite(625,280,10,10);
   dog.addImage("normal",dogImg);
-  dog.scale = 0.15;
+  dog.scale = 0.1;
+  //pseftikoPatoma = createSprite(625,320,50,10);
+
+  feed = createButton("Feed Doge");
+  feed.position(400,195);
+  feed.mousePressed(feedDog);
+
+  addFood = createButton("Add Food");
+  addFood.position(500,195);
+  addFood.mousePressed(addF);
 }
 
 
 function draw() {
   background(46,139,87);
 
-  if(keyWentDown(UP_ARROW))
-  {
-    writeS(fuudS);
-    console.log(fuudS);
-    dog.addImage(hapDogImg);
-    dog.scale = 0.15;
-    happyTimer = 80;
-  }
+  fedTime = db.ref('feedTime');
+  fedTime.on("value",function(data){
+    lastFed = data.val();
+  });
 
-  console.log(happyTimer);
   if(happyTimer > 0)
   {
     happyTimer = happyTimer - 1;
-    if(happyTimer == 0) {
-      dog.addImage(dogImg);
-    }
   }
-
-  if(keyWentDown(DOWN_ARROW))
+  if(happyTimer == 0)
   {
-    writeRef(fuudS);
+    dog.addImage("normal",dogImg);
   }
-
 
   drawSprites();
 
+  stroke(3);
+  fill(255);
   textSize(20);
-  fill("white");
-  stroke("black");
-  strokeWeight(2);
   textAlign(CENTER);
-  text("Food Remaining : " + fuudS,250,220);
-  textSize(14);
-  text("Press 'up arrow' to feed The Doge",250,20);
-  text("Press 'down arrow' to refill food supplies",250,490);
-}
-
-
-
-function writeS(a){
-  if(a <= 0)
+  if(lastFed >= 12)
   {
-    a = 0;
+    text("Last Feed : " + lastFed % 12 + " PM", 150, 30)
+  } else if(lastFed == 0)
+  {
+    text("Last Feed : 12 AM",150,30);
   } else
   {
-    a = a - 1;
+    text("Last Feed : " + lastFed + " AM", 150, 30);
   }
-  db.ref("Dog").set({
-    Fuud:a
-  });
+  text(Math.round(happyTimer / 30) + " Till Doge Digests",550,30)
+  
+
+  foodObj.display();
 }
 
-function writeRef(a){
-  if(a == 0)
-  {
-    db.ref("Dog").set({
-      Fuud:20
+
+
+function feedDog(){
+  if(happyTimer == 0){
+    dog.addImage(hapDogImg);
+    happyTimer = 500;
+
+    foodObj.updateFoodS(foodObj.getFuudS() - 1);
+    db.ref('/').update({
+      food : foodObj.getFuudS(),
+      feedTime : hour()
     });
   }
 }
 
-function readDB(data){
-  dogDB = data.val();
-  fuudS = dogDB.Fuud;
+function addF(){
+  foodS++
+  db.ref('/').update({
+    food:foodS
+  });
 }
 
-
-function showErr() {
-  console.log("errorr");
+function readDB(data){
+  foodS = data.val();
+  foodObj.updateFoodS(foodS)
 }
