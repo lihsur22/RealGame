@@ -7,8 +7,8 @@ var gameStateChange, gameStateRead;
 
 function preload()
 {
-  dogImg = loadImage("images/dogImg.png");
-  hapDogImg = loadImage("images/dogImg1.png");
+  dogImg = loadImage("images/Dog.png");
+  hapDogImg = loadImage("images/Happy.png");
 }
 
 function setup() {
