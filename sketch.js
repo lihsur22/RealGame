@@ -1,8 +1,9 @@
 var dog, dogImg, hapDogImg, foodS, lastFed, fedTime;
-var db, foodStock, pseftikoPatoma;
+var db, foodStock;
 var happyTimer = 0;
 var feed, addFood;
 var foodObj;
+var gameStateChange, gameStateRead;
 
 function preload()
 {
