@@ -13,6 +13,18 @@ class Food {
         this.fuudS = a;
     }
 
+    bedroom(){
+      background(bedImg,550,500);
+    }
+
+    garden(){
+      background(gardenImg,550,500);
+    }
+
+    washroom(){
+      background(washImg,550,500);
+    }
+
     display(){
         var x=80,y=200;
       
