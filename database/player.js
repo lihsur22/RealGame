@@ -1,9 +1,9 @@
 class Player {
     constructor(){
         this.index = null;
-        this.wall = 0;
         this.break = 0;
         this.name = null;
+        this.waitTime = 0;
     }
 
     readCount(){
@@ -23,7 +23,6 @@ class Player {
         var playerIndex = 'players/play' + this.index;
         db.ref(playerIndex).set({
             name : this.name,
-            wall : this.wall,
             break : this.break
         });
     }

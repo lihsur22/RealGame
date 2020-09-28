@@ -19,62 +19,80 @@ class Game {
     async start() {
         if(gameState == 0)
         {
-            Play = new Player();
+            player = new Player();
             var refCount = await db.ref('playC').once("value");
             if(refCount.exists()){
                 playC = refCount.val();
-                Play.readCount();
+                player.readCount();
             }
             form = new Form();
             form.display();
         }
-        c1 = createSprite(100,200);
-        c2 = createSprite(300,200);
-        c3 = createSprite(500,200);
-        c4 = createSprite(700,200);
-        cars = [c1,c2,c3,c4];
-        c1.addImage(c1Img);
-        c2.addImage(c2Img);
-        c3.addImage(c3Img);
-        c4.addImage(c4Img);
+        b1 = createSprite(200,200,40,40);
+        b2 = createSprite(350,200,40,40);
+        b3 = createSprite(500,200,40,40);
+        b4 = createSprite(650,200,40,40);
+        breaks = [b1,b2,b3,b4];
     }
 
     play() {
         form.hideAll();
-        //textSize(35);
-        //text("Game Has Started", 250, 50);
+        textSize(20);
+        textAlign(CENTER);
+        text(Math.round(player.waitTime / 30) + " Left Till Next Hit",displayWidth/2,displayHeight/2 - 400);
 
         Player.playerInfo();
+        var index = 0;
+        var wallTough = 3;
 
         if(allPlayer !== undefined)
         {
-            var index = 0;
-            var x = 220;
-            var y;
-
             for(var plr in allPlayer){
                 index = index + 1;
-                x = x + 300;
-                y = displayHeight - allPlayer[plr].distance;
-
-                cars[index - 1].x = x;
-                cars[index - 1].y = y;
-
-                if(index === Play.index + 1)
+                
+                if(allPlayer[plr].break == wallTough)
                 {
-                    cars[index - 1].shapeColor = "red";
+                    breaks[index - 1].y = 100;
+                }
+                if(allPlayer[plr].break == (2 * wallTough))
+                {
+                    breaks[index - 1].y = 0;
+                }
+                if(allPlayer[plr].break == (3 * wallTough))
+                {
+                    breaks[index - 1].y = -100;
+                }
+                if(allPlayer[plr].break == (4 * wallTough))
+                {
+                    breaks[index - 1].y = -200;
+                }
+
+                if(index === player.index + 1)
+                {
+                    breaks[index - 1].shapeColor = "red";
                     camera.position.x = displayWidth/2;
-                    camera.position.y = cars[index - 1].y;
+                    camera.position.y = breaks[index - 1].y;
+                    w = new Walls(breaks[index - 1].x, 200);
+                    w.display();
                 }
             }
-            background(trackImg,displayHeight/2,displayWidth/4);
         }
-
-        if(keyIsDown(UP_ARROW) && Play.index !== null){
-            Play.distance += 10;
-            Play.update();
+        
+        if(keyCode === UP_ARROW && player.index !== null)
+        {
+            keyCode = DOWN_ARROW;
+            if(player.waitTime == 0)
+            {
+                player.break += 1;
+                player.update();
+                player.waitTime += 30 * (Math.round(random(1,5)));
+            }
         }
-        if(Play.distance >= 6500)
+        if(player.waitTime > 0)
+        {
+            player.waitTime = player.waitTime - 1;
+        }
+        if(player.break == (4 * wallTough))
         {
             this.update(2);
         }
