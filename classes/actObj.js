@@ -1,4 +1,4 @@
-class Item {
+class Act {
     constructor(){
         this.chosen =  0;
     }
@@ -10,12 +10,12 @@ class Item {
             strokeWeight(4);
             rectMode(CENTER);
             fill("black");
-            rect(680, 720, 140, 60);
+            rect(400, 720, 140, 60);
             fill("orange");
             strokeWeight(3);
             textAlign(CENTER);
             textSize(30);
-            text("ITEM", 680, 730);
+            text("ACT", 400, 730);
         }
 
         if(this.chosen == 1)
@@ -24,12 +24,12 @@ class Item {
             strokeWeight(4);
             rectMode(CENTER);
             fill("black");
-            rect(680, 720, 140, 60);
+            rect(400, 720, 140, 60);
             fill("yellow");
             strokeWeight(3);
             textAlign(CENTER);
             textSize(30);
-            text("ITEM", 680, 730);
+            text("ACT", 400, 730);
         }
     }
 };
