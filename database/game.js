@@ -33,5 +33,20 @@ class Game{
 				playerNames.push(data.val());
 			});
 		}
+		for(var i = 1; i < (playCount + 1); i++){
+			var playerInfoRef = await db.ref('players' + '/' + 'player' + i + '/passw');
+			playerInfoRef.on("value", (data) => {
+				playerPassws.push(data.val());
+			});
+		}
+	}
+
+	async a() {
+		var player = new Player;
+		var playerCountRef = await db.ref('playC').once("value");
+		if (playerCountRef.exists()) {
+			playCount = playerCountRef.val();
+			player.getCount();
+		}
 	}
 };

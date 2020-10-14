@@ -52,7 +52,7 @@ class Fight {
             hpM = hpM - attk;
         } else
         {
-            hpM = hpM - Math.round(attk + (crit * random(5,13) / defM))
+            hpM = hpM - Math.round(attk + (crit * random(2,6) / defM))
             console.log("critted");
             critS = 0;
         }

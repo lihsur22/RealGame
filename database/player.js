@@ -2,8 +2,9 @@ class Player {
     constructor() {
         this.xp = 0;
         this.name = null;
-        this.lvl = 0;
+        this.lvl = 1;
         this.index = null;
+        this.passw = null;
     }
 
     updateCount(count) {
@@ -25,18 +26,19 @@ class Player {
             name: this.name,
             lvl: this.lvl,
             xp: this.xp,
-            pos: this.index
+            pos: this.index,
+            passw: this.passw
         });
     }
 
-    static getPlayerInfo() {
-        var playerInfoRef = db.ref('player' + 's');
+    getPlayerInfo(x) {
+        var playerInfoRef = db.ref("players/player" + x);
         playerInfoRef.on("value", (data) => {
-            allPlayer = data.val();
+            this.name = data.val().name;
+            this.index = data.val().pos;
+            this.xp = data.val().xp;
+            this.lvl = data.val().lvl;
+            this.passw = data.val().passw;
         });
-    }
-
-    getNames() {
-        
     }
 }

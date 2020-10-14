@@ -1,16 +1,16 @@
 var player, fightObj, itemObj, checkObj, turnStart = 1;
-var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl;
-var statsP = [hp, def, dext, crit, attk];
+var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 1;
+var statsP = [];
 var gameState = "", enemyState = "", turn = "";
 var monster, sign = 1;
 var maxHpM, hpM, defM, dextM, critM, attkM, critChanceM, xpM, critMS = 0;
-var statsM = [maxHpM, hpM, defM, dextM, critM, attkM];
+var statsM = [];
 var turnTaken, hideStats, hideTime, hideMiss, hideMissM;
 var missSprite, monsterDes, hurtTime;
 
 var eventDelay, monsTime, monsTran;
 
-var db, form, player, playCount = 0, allPlayer, playerNames = [], names = 0;
+var db, form, player, playCount = 0, allPlayer, playerNames = [], playerPassws = [];
 
 
 function setup(){
@@ -24,6 +24,11 @@ function setup(){
 
 
 function draw(){
+  if(sign == 1)
+  {
+    game.a();
+    background(0);
+  }
   if(sign == 0)
   {
     if(hurtTime !== 0)
@@ -59,25 +64,43 @@ function draw(){
       {
         if(def !== 0)
         {
-          hp = hp - Math.round(attkM + (critM * random(5,13) / def));
+          hp = hp - Math.round(attkM + (critM * random(1,4) / def));
         }
         if(def === 0)
         {
-          hp = hp - Math.round(attkM + (critM * random(8,17))); 
+          hp = hp - Math.round(attkM + (critM * random(1,4))); 
         }
         console.log("critted");
         critMS = 0;
       }
     }
 
+    //================== LOGGING IN ==================
+    if(gameState == "logging_in")
+    {
+      xp = player.xp;
+      lvl = player.lvl;
+      textAlign(CENTER);
+      fill("white");
+      textSize(15);
+      text("Logged In Sucessfully!",400,60);
+    }
+    //================== LOGGING IN ==================
+
+
 
     //================== FIGHTING MONSTER / BOSS ======================
-    if(gameState == "rest")
+    if(gameState == "rest" || gameState == "logging_in")
     {
+
       textAlign(CENTER);
       textSize(40);
       fill("white");
       text("Press 'S' to summon monster", 400, 400);
+      textSize(15);
+      text("Use " + "\"" + player.name + "\"" + " as Name and " + "\"" + player.passw + "\"" + " as Password for when you log back in",400,30);
+      textSize(20);
+      text("XP : " + player.xp + "                  " + "LVL : " + player.lvl, 400, 430);
 
       if(keyCode === 83)
       {
@@ -89,7 +112,7 @@ function draw(){
         fightObj = new Fight;
         itemObj = new Item;
         checkObj = new Check;
-        if(lvl == undefined)
+        if(lvl == 1)
         {
           maxHp = 30;
           hp = 30;
@@ -98,6 +121,15 @@ function draw(){
           crit = 10;
           dext = 5;
           critChance = 10;
+        }
+        statsP = [maxHp, def, dext, crit, attk];
+        statsM = [maxHpM, defM, dextM, critM, attkM];
+        if(statsM >= statsP)
+        {
+          console.log("TOO STRONG");
+        } else
+        {
+          console.log("CAN FIGHT");
         }
         turn = "player";
         turnTaken = 0;
@@ -108,7 +140,7 @@ function draw(){
 
     if(gameState == "active" || gameState == "taking_turn" || gameState == "win" || gameState == "lose")
     {
-      //================== CHOOSING ATTACK / ITEM / ACT ======================
+      //================== CHOOSING ATTACK / HEAL / ACT ======================
       if(turn == "player")
       {
         if(turnStart == 1)
@@ -116,13 +148,13 @@ function draw(){
           fightObj.chosen = 1;
         }
       }
-      //================== CHOOSING ATTACK / ITEM ======================
+      //================== CHOOSING ATTACK / HEAL / ACT ======================
 
       //================== PLAYER STATS ======================
       textAlign(CENTER);
       textSize(20);
       fill("white");
-      text("HP : " + hp + " / " + maxHp + "     DEF : " + def, 400, 660);
+      text("HP : " + hp + " / " + maxHp + "     DEF : " + def + "     LVL : " + lvl, 400, 660);
       //================== PLAYER STATS ======================
 
       if(enemyState == "normal" && turn == "player")
@@ -217,10 +249,8 @@ function draw(){
         gameState = "win2";
         game.start();
         xp = xp + xpM;
-        console.log(xp);
         player.xp = xp;
-
-        console.log(player.xp);
+        console.log(gameState);
 
         player.update();
       }
@@ -245,6 +275,7 @@ function draw(){
           {
             turn = "enemy";
             gameState = "active";
+            hideStats = undefined;
           }
         }
         if(hideMiss === null)
@@ -266,6 +297,7 @@ function draw(){
           if(hideTime == 0)
           {
             turn = "enemy";
+            hideMiss = undefined;
           }
         }
       }

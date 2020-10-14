@@ -15,7 +15,7 @@ class Item {
             strokeWeight(3);
             textAlign(CENTER);
             textSize(30);
-            text("ITEM", 680, 730);
+            text("HEAL", 680, 730);
         }
 
         if(this.chosen == 1)
@@ -29,7 +29,7 @@ class Item {
             strokeWeight(3);
             textAlign(CENTER);
             textSize(30);
-            text("ITEM", 680, 730);
+            text("HEAL", 680, 730);
         }
     }
 };
