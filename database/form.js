@@ -48,7 +48,7 @@ class Form{
 		this.reset.position(400, 800);
 		this.reset.style('width', '100px');
 		this.reset.style('height', '30px');
-		this.reset.style('background', '#ff5757');
+		this.reset.style('background', '#ff5757')
 		this.reset.hide();
 
 		this.button.mousePressed(() => {
@@ -77,7 +77,7 @@ class Form{
 
 		//console.log(playCount);
 		for(var i = 0; i < playCount; i++){
-			console.log(playerPassws[i], i);
+			//console.log(playerPassws[i], i);
 			if(this.nameInput.value() == playerNames[i] && this.passwInput.value() == playerPassws[i])
 			{
 				occ = 1;

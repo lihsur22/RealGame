@@ -7,7 +7,7 @@ class Monster {
             maxHpM = 25;
             hpM = maxHpM;
             defM = 5;
-            dextM = 100;
+            dextM = 0;
             attkM = 3;
             xpM = 10;
             critChanceM = 7;
@@ -18,7 +18,7 @@ class Monster {
             maxHpM = 30;
             hpM = maxHpM;
             defM = 1;
-            dextM = 103;
+            dextM = 3;
             attkM = 4;
             xpM = 20;
             critChanceM = 10;
@@ -29,7 +29,7 @@ class Monster {
             maxHpM = 15;
             hpM = maxHpM;
             defM = 2;
-            dextM = 1020;
+            dextM = 20;
             attkM = 2;
             xpM = 15;
             critChanceM = 15;
@@ -40,7 +40,7 @@ class Monster {
             maxHpM = 25;
             hpM = maxHpM;
             defM = 3;
-            dextM = 108;
+            dextM = 8;
             attkM = 4;
             xpM = 30;
             critChanceM = 15;

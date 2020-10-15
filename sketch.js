@@ -8,7 +8,7 @@ var statsM = [];
 var turnTaken, hideStats, hideTime, hideMiss, hideMissM;
 var missSprite, monsterDes, hurtTime;
 
-var eventDelay, monsTime, monsTran;
+var eventDelay, monsTime, monsTran, loseTime = 0, loseTran = 0, loseTran2 = 0;
 
 var db, form, player, playCount = 0, allPlayer, playerNames = [], playerPassws = [];
 
@@ -151,10 +151,13 @@ function draw(){
       //================== CHOOSING ATTACK / HEAL / ACT ======================
 
       //================== PLAYER STATS ======================
-      textAlign(CENTER);
-      textSize(20);
-      fill("white");
-      text("HP : " + hp + " / " + maxHp + "     DEF : " + def + "     LVL : " + lvl, 400, 660);
+      if(gameState !== "lose")
+      {
+        textAlign(CENTER);
+        textSize(20);
+        fill("white");
+        text("HP : " + hp + " / " + maxHp + "     DEF : " + def + "     LVL : " + lvl, 400, 660);
+      }
       //================== PLAYER STATS ======================
 
       if(enemyState == "normal" && turn == "player")
@@ -239,28 +242,75 @@ function draw(){
 
       if(hpM <= 0)
       {
-        gameState = "win"
+        gameState = "win";
+      }
+      if(hp <= 0)
+      {
+        gameState = "lose";
       }
 
+      //==================== WIN ====================
       if(gameState == "win")
       {
         monsTime = 0;
-        monsTran = 255;
+        monsTran = 0;
         gameState = "win2";
         game.start();
         xp = xp + xpM;
         player.xp = xp;
-        console.log(gameState);
-
+        //console.log(gameState);
         player.update();
       }
+      //==================== WIN ====================
 
 
 
+      //==================== LOSE ====================
+      if(gameState == "lose")
+      {
+        if(loseTime < 2000)
+        {
+          if(loseTime >= 50)
+          {
+            background(loseTran2, 0, 0);
+            if(loseTran2 < 165)
+            {
+              loseTran2 += 5
+            }
+          }
+          if(loseTime >= 100)
+          {
+            monster.body.destroy();
+            textAlign(CENTER);
+            textSize(40);
+            strokeWeight(3);
+            stroke(255,0,0,loseTran);
+            fill(255,0,0,loseTran);
+            text("YOU DIED", 400,400);
+            textSize(25);
+            strokeWeight(2);
+            text("PRESS W TO RESET", 400,440);
+            if(loseTran < 255)
+            {
+              loseTran = loseTran + 5;
+            }
+          }
+          if(keyIsDown(87))
+          {
+            reset();
+          }
+          loseTime = loseTime + 1
+        }
+      }
+      //==================== LOSE ====================
 
-      fightObj.display();
-      itemObj.display();
-      checkObj.display();
+
+      if(gameState !== "lose")
+      {
+        fightObj.display();
+        itemObj.display();
+        checkObj.display();
+      }
 
       drawSprites();
 
@@ -301,48 +351,42 @@ function draw(){
           }
         }
       }
-
-
-
     }
 
     if(gameState == "win2")
-    {
-      if(monsTime < 2000)
       {
-        if(monsTime <= 50)
+        if(monsTime < 2000)
         {
-          monster.body.shapeColor = rgb(135,135,135,monsTran);
-          monsTran = monsTran - 6;
-          console.log(monsTran);
+          if(monsTime >= 100)
+          {
+            monster.body.destroy();
+            textAlign(CENTER);
+            textSize(40);
+            strokeWeight(3);
+            stroke(255,0,0,monsTran);
+            fill(255,0,0,monsTran);
+            text("YOU WIN! YOU GAINED " + xpM + " XP!", 400,400);
+            textSize(25);
+            strokeWeight(2);
+            text("PRESS W TO RESET", 400,440);
+            if(monsTran < 255)
+            {
+              monsTran = monsTran + 5;
+            }
+          }
+          if(keyIsDown(87))
+          {
+            reset();
+          }
+          drawSprites();
+          monsTime = monsTime + 1;
         }
-        if(monsTime >= 100)
-        {
-          monster.body.destroy();
-          textAlign(CENTER);
-          textSize(40);
-          strokeWeight(3);
-          stroke("red");
-          fill("red");
-          text("YOU WIN! YOU GAINED " + xpM + " XP!", 400,400);
-          textSize(25);
-          strokeWeight(2);
-          fill(255,0,0,70);
-          text("PRESS W TO RESET", 400,440);
-        }
-        if(keyIsDown(87))
-        {
-          reset();
-        }
-        drawSprites();
-        monsTime = monsTime + 1;
       }
-    }
 
     if(keyCode == 75)
     {
       keyCode = 0;
-      hpM = 0;
+      hp = 0;
     }
   }
 }
@@ -445,4 +489,7 @@ function reset(){
   fightObj.chosen = 0;
   turnStart = 1;
   gameState = "rest";
+  loseTime = 0;
+  loseTran = 0;
+  loseTran2 = 0;
 }
