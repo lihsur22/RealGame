@@ -32,4 +32,8 @@ class Item {
             text("HEAL", 680, 730);
         }
     }
+
+    selected(){
+        hp = hp + (Math.round(random(4,10)));
+    }
 };

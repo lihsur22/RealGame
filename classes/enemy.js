@@ -60,6 +60,7 @@ class Monster {
         if(miss < dext)
         {
             hideMissM = 1;
+            hurtTime = 10;
         } else
         {
             hurtTime = 255;

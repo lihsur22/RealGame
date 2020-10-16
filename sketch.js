@@ -1,16 +1,17 @@
 var player, fightObj, itemObj, checkObj, turnStart = 1;
-var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 1;
+var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 1, xpNeeded;
 var statsP = [];
 var gameState = "", enemyState = "", turn = "";
 var monster, sign = 1;
 var maxHpM, hpM, defM, dextM, critM, attkM, critChanceM, xpM, critMS = 0;
 var statsM = [];
-var turnTaken, hideStats, hideTime, hideMiss, hideMissM;
+var turnTaken, hideStats, hideTime, hideMiss, hideMissM, showDmg;
 var missSprite, monsterDes, hurtTime;
 
 var eventDelay, monsTime, monsTran, loseTime = 0, loseTran = 0, loseTran2 = 0;
 
 var db, form, player, playCount = 0, allPlayer, playerNames = [], playerPassws = [];
+var dmgDealt;
 
 
 function setup(){
@@ -45,7 +46,7 @@ function draw(){
       hurtTime = null;
       turn = "player";
       turnStart = 1;
-    }
+		}
 
     if(hurtTime == 250)
     {
@@ -64,11 +65,11 @@ function draw(){
       {
         if(def !== 0)
         {
-          hp = hp - Math.round(attkM + (critM * random(1,4) / def));
+          hp = hp - Math.round(attkM + (critM * random(1,2.5) / def));
         }
         if(def === 0)
         {
-          hp = hp - Math.round(attkM + (critM * random(1,4))); 
+          hp = hp - Math.round(attkM + (critM * random(1,2.5))); 
         }
         console.log("critted");
         critMS = 0;
@@ -92,7 +93,6 @@ function draw(){
     //================== FIGHTING MONSTER / BOSS ======================
     if(gameState == "rest" || gameState == "logging_in")
     {
-
       textAlign(CENTER);
       textSize(40);
       fill("white");
@@ -100,7 +100,37 @@ function draw(){
       textSize(15);
       text("Use " + "\"" + player.name + "\"" + " as Name and " + "\"" + player.passw + "\"" + " as Password for when you log back in",400,30);
       textSize(20);
-      text("XP : " + player.xp + "                  " + "LVL : " + player.lvl, 400, 430);
+			text("XP : " + player.xp + "                  " + "LVL : " + player.lvl, 400, 430);
+			
+			if(xp == xpNeeded)
+			{
+        game.start();
+				xp = xp - xpNeeded;
+				player.xp = xp;
+				lvl += 1;
+				player.lvl = lvl;
+				player.update();
+			}
+			if(lvl == 1)
+			{
+				maxHp = 30;
+				def = 0;
+				attk = 5;
+				crit = 6;
+				dext = 5;
+				critChance = 10;
+				xpNeeded = 60;
+			}
+			if(lvl == 2)
+			{
+				maxHp = 35;
+				def = 2;
+				attk = 5;
+				crit = 7;
+				dext = 8;
+				critChance = 15;
+				xpNeeded = 140;
+			}
 
       if(keyCode === 83)
       {
@@ -112,16 +142,8 @@ function draw(){
         fightObj = new Fight;
         itemObj = new Item;
         checkObj = new Check;
-        if(lvl == 1)
-        {
-          maxHp = 30;
-          hp = 30;
-          def = 0;
-          attk = 5;
-          crit = 10;
-          dext = 5;
-          critChance = 10;
-        }
+				
+				hp = maxHp;
         statsP = [maxHp, def, dext, crit, attk];
         statsM = [maxHpM, defM, dextM, critM, attkM];
         if(statsM >= statsP)
@@ -156,7 +178,7 @@ function draw(){
         textAlign(CENTER);
         textSize(20);
         fill("white");
-        text("HP : " + hp + " / " + maxHp + "     DEF : " + def + "     LVL : " + lvl, 400, 660);
+        text("HP : " + hp + " / " + maxHp + "     DEF : " + def + "     LVL : " + lvl + "     DEXT : " + dext, 400, 660);
       }
       //================== PLAYER STATS ======================
 
@@ -190,6 +212,24 @@ function draw(){
           }
         }
         //================== Fighting ======================
+
+        //================== HEALING =======================
+        if(itemObj.chosen == 1 && keyCode === ENTER)
+        {
+          keyCode = 0;
+          if(hp !== maxHp)
+          {
+            itemObj.chosen = 0;
+            itemObj.selected();
+            turn = "enemy";
+          }
+        }
+        //================== HEALING =======================
+      }
+
+      if(hp > maxHp)
+      {
+        hp = maxHp;
       }
 
       if(hideStats === 1)
@@ -200,6 +240,15 @@ function draw(){
       if(hideMiss === 1)
       {
         hideMiss = null;
+        hideTime = 20;
+        missSprite = createSprite(monster.body.x, monster.body.y);
+        missSprite.velocityY = -7;
+        missSprite.lifetime = 10;
+        missSprite.visible = false;
+			}
+			if(showDmg === 1)
+      {
+        showDmg = null;
         hideTime = 20;
         missSprite = createSprite(monster.body.x, monster.body.y);
         missSprite.velocityY = -7;
@@ -254,7 +303,8 @@ function draw(){
       {
         monsTime = 0;
         monsTran = 0;
-        gameState = "win2";
+				gameState = "win2";
+				missSprite.destroy();
         game.start();
         xp = xp + xpM;
         player.xp = xp;
@@ -268,7 +318,8 @@ function draw(){
       //==================== LOSE ====================
       if(gameState == "lose")
       {
-        if(loseTime < 2000)
+				missSprite.destroy();
+        if(loseTime < 10000)
         {
           if(loseTime >= 50)
           {
@@ -295,11 +346,11 @@ function draw(){
               loseTran = loseTran + 5;
             }
           }
-          if(keyIsDown(87))
-          {
-            reset();
-          }
           loseTime = loseTime + 1
+        }
+        if(keyIsDown(87))
+        {
+          reset();
         }
       }
       //==================== LOSE ====================
@@ -328,14 +379,21 @@ function draw(){
             hideStats = undefined;
           }
         }
-        if(hideMiss === null)
+        if(hideMiss === null || showDmg === null)
         {
           textSize(40);
           textAlign(CENTER);
           fill("red");
           stroke("white");
-          strokeWeight(3);
-          text("MISS",missSprite.x,missSprite.y);
+					strokeWeight(3);
+					if(hideMiss === null && showDmg === undefined)
+					{
+						text("MISS",missSprite.x,missSprite.y);
+					}
+					if(showDmg === null && hideMiss === undefined)
+					{
+						text("- " + dmgDealt,missSprite.x,missSprite.y);
+					}
           if(hideTime == 15)
           {
             missSprite.velocityY = 0;
@@ -347,7 +405,8 @@ function draw(){
           if(hideTime == 0)
           {
             turn = "enemy";
-            hideMiss = undefined;
+						hideMiss = undefined;
+						showDmg = undefined;
           }
         }
       }
@@ -355,7 +414,7 @@ function draw(){
 
     if(gameState == "win2")
       {
-        if(monsTime < 2000)
+        if(monsTime < 10000)
         {
           if(monsTime >= 100)
           {
@@ -374,19 +433,19 @@ function draw(){
               monsTran = monsTran + 5;
             }
           }
-          if(keyIsDown(87))
-          {
-            reset();
-          }
           drawSprites();
           monsTime = monsTime + 1;
+        }
+        if(keyIsDown(87))
+        {
+        	reset();
         }
       }
 
     if(keyCode == 75)
     {
       keyCode = 0;
-      hp = 0;
+      hpM = 0;
     }
   }
 }
