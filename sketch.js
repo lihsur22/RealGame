@@ -1,9 +1,9 @@
 var player, fightObj, itemObj, checkObj, turnStart = 1;
-var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 1, xpNeeded;
+var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 0, xpNeeded = 0;
 var statsP = [];
 var gameState = "", enemyState = "", turn = "";
 var monster, sign = 1;
-var maxHpM, hpM, defM, dextM, critM, attkM, critChanceM, xpM, critMS = 0;
+var maxHpM, hpM, defM, dextM, critM, attkM, critChanceM, xpM, critMS = 0, name;
 var statsM = [];
 var turnTaken, hideStats, hideTime, hideMiss, hideMissM, showDmg;
 var missSprite, monsterDes, hurtTime;
@@ -56,6 +56,10 @@ function draw(){
         {
           hp = hp - (Math.round(attkM / def));
         }
+        if(def === 1)
+        {
+          hp = hp - (Math.round(attkM - (attkM / 10)));
+        }
         if(def === 0)
         {
           hp = hp - attkM;
@@ -102,7 +106,7 @@ function draw(){
       textSize(20);
 			text("XP : " + player.xp + "                  " + "LVL : " + player.lvl, 400, 430);
 			
-			if(xp == xpNeeded)
+			if(xp >= xpNeeded && xpNeeded !== 0)
 			{
         game.start();
 				xp = xp - xpNeeded;
@@ -110,7 +114,14 @@ function draw(){
 				lvl += 1;
 				player.lvl = lvl;
 				player.update();
-			}
+      }
+
+      if(lvl !== 1)
+      {
+        xpNeeded = ((10 * lvl * lvl) + (20 * lvl));
+      }
+      
+      //================= LVL =================
 			if(lvl == 1)
 			{
 				maxHp = 30;
@@ -119,24 +130,95 @@ function draw(){
 				crit = 6;
 				dext = 5;
 				critChance = 10;
-				xpNeeded = 60;
+				xpNeeded = 30;
 			}
 			if(lvl == 2)
 			{
 				maxHp = 35;
-				def = 2;
+				def = 1;
 				attk = 5;
 				crit = 7;
 				dext = 8;
 				critChance = 15;
-				xpNeeded = 140;
-			}
+      }
+      if(lvl == 3)
+			{
+				maxHp = 40;
+				def = 1;
+				attk = 7;
+				crit = 7;
+				dext = 10;
+				critChance = 20;
+      }
+      if(lvl == 4)
+			{
+				maxHp = 45;
+				def = 2;
+				attk = 8;
+				crit = 8;
+				dext = 11;
+				critChance = 25;
+      }
+      if(lvl == 5)
+			{
+				maxHp = 50;
+				def = 2;
+				attk = 9;
+				crit = 12;
+				dext = 15;
+				critChance = 35;
+      }
+      if(lvl == 6)
+			{
+				maxHp = 55;
+				def = 3;
+				attk = 10;
+				crit = 12;
+				dext = 18;
+				critChance = 50;
+      }
+      if(lvl == 7)
+			{
+				maxHp = 60;
+				def = 4;
+				attk = 11;
+				crit = 13;
+				dext = 22;
+				critChance = 55;
+      }
+      if(lvl == 8)
+			{
+				maxHp = 65;
+				def = 6;
+				attk = 14;
+				crit = 13;
+				dext = 25;
+				critChance = 60;
+      }
+      if(lvl == 9)
+			{
+				maxHp = 70;
+				def = 8;
+				attk = 16;
+				crit = 15;
+				dext = 30;
+				critChance = 75;
+      }
+      if(lvl == 10)
+			{
+				maxHp = 75;
+				def = 10;
+				attk = 18;
+				crit = 16;
+				dext = 37;
+				critChance = 75;
+      }
+      //================= LVL =================
 
       if(keyCode === 83)
       {
         keyCode = 0;
-        var ran = Math.round(random(0,3));
-        monster = new Monster(ran);
+        monster = new Monster(lvl);
         gameState = "active";
         enemyState = "normal";
         fightObj = new Fight;
@@ -165,6 +247,7 @@ function draw(){
       //================== CHOOSING ATTACK / HEAL / ACT ======================
       if(turn == "player")
       {
+        monster.display();
         if(turnStart == 1)
         {
           fightObj.chosen = 1;
@@ -178,6 +261,7 @@ function draw(){
         textAlign(CENTER);
         textSize(20);
         fill("white");
+        noStroke();
         text("HP : " + hp + " / " + maxHp + "     DEF : " + def + "     LVL : " + lvl + "     DEXT : " + dext, 400, 660);
       }
       //================== PLAYER STATS ======================
@@ -329,6 +413,11 @@ function draw(){
               loseTran2 += 5
             }
           }
+          if(loseTime == 100)
+          {
+            player.xp = 0;
+            player.update();
+          }
           if(loseTime >= 100)
           {
             monster.body.destroy();
@@ -392,7 +481,7 @@ function draw(){
 					}
 					if(showDmg === null && hideMiss === undefined)
 					{
-						text("- " + dmgDealt,missSprite.x,missSprite.y);
+						text(dmgDealt + " / " + maxHpM,missSprite.x,missSprite.y);
 					}
           if(hideTime == 15)
           {
@@ -551,4 +640,6 @@ function reset(){
   loseTime = 0;
   loseTran = 0;
   loseTran2 = 0;
+  missSprite.destroy();
+  showDmg = undefined;
 }

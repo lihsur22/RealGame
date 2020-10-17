@@ -2,7 +2,7 @@ class Player {
     constructor() {
         this.xp = 0;
         this.name = null;
-        this.lvl = 1;
+        this.lvl = 0;
         this.index = null;
         this.passw = null;
     }

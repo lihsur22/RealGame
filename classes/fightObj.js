@@ -46,18 +46,23 @@ class Fight {
             hideMiss = 1;
         } else if(defM !== 0 && critS == 0)
         {
-            dmgDealt = (Math.round(attk / defM));
             hpM = hpM - (Math.round(attk / defM));
+            dmgDealt = hpM
+            showDmg = 1;
+        } else if(defM === 1 && critS == 0)
+        {
+            hpM = hpM - (Math.round(attk - (attk/10)));
+            dmgDealt = hpM;
             showDmg = 1;
         } else if(critS == 0)
         {
-            dmgDealt = attk;
             hpM = hpM - attk;
+            dmgDealt = hpM;
             showDmg = 1;
         } else
         {
-            dmgDealt = Math.round(attk + (crit * random(2,6) / defM));
-            hpM = hpM - dmgDealt
+            hpM = hpM - Math.round(attk + (crit * random(2,6) / defM));
+            dmgDealt = hpM;
             console.log("critted");
             critS = 0;
             showDmg = 1;
