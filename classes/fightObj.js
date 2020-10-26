@@ -37,6 +37,7 @@ class Fight {
         var miss = Math.round(random(1,100));
         var critC = Math.round(random(1,100));
         var critS = 0;
+        dmgSnd.play();
         if(critC < critChance && miss > dextM)
         {
             critS = 1;

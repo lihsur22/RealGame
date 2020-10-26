@@ -1,5 +1,5 @@
 var player, fightObj, itemObj, checkObj, turnStart = 1;
-var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 0, xpNeeded = 0;
+var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 0, xpNeeded = 0, bravery = 0;
 var statsP = [];
 var gameState = "", enemyState = "", turn = "";
 var monster, sign = 1;
@@ -13,9 +13,34 @@ var eventDelay, monsTime, monsTran, loseTime = 0, loseTran = 0, loseTran2 = 0;
 var db, form, player, playCount = 0, allPlayer, playerNames = [], playerPassws = [];
 var dmgDealt;
 
+var dmgSnd, lvlupSnd, battleSong, song1Tim = 0;
+
+
+/*var a = 0, lim = 100000000, j = 2;*/
+
+function preload(){
+  soundFormats('ogg');
+  dmgSnd = loadSound("assets/sounds/snd_damage");
+  lvlupSnd = loadSound("assets/sounds/snd_levelup");
+  battleSong = loadSound("assets/sounds/battle");
+}
+
 
 function setup(){
   canvas = createCanvas(800,800);
+
+  /*Aproximating PI for no reason
+  for(var i = 1; i <= lim; i += 2)
+  {
+    a = a + (Math.pow(-1,j)/i);
+    if(i == lim - 1)
+    {
+      console.log(a*4);
+    }
+    j = j + 1
+  }
+  */
+
   db = firebase.database();
   game = new Game();
   game.start();
@@ -25,6 +50,7 @@ function setup(){
 
 
 function draw(){
+
   if(sign == 1)
   {
     game.a();
@@ -50,6 +76,7 @@ function draw(){
 
     if(hurtTime == 250)
     {
+      dmgSnd.play();
       if(critMS == 0)
       {
         if(def !== 0)
@@ -108,6 +135,7 @@ function draw(){
 			
 			if(xp >= xpNeeded && xpNeeded !== 0)
 			{
+        lvlupSnd.play();
         game.start();
 				xp = xp - xpNeeded;
 				player.xp = xp;
@@ -134,17 +162,26 @@ function draw(){
 			}
 			if(lvl == 2)
 			{
-				maxHp = 35;
-				def = 1;
+        
+        maxHp = 35;
+				def = 2;
 				attk = 5;
 				crit = 7;
 				dext = 8;
-				critChance = 15;
+        critChance = 15;
+        /*
+        maxHp = 5;
+				def = 1;
+				attk = 1;
+				crit = 1;
+				dext = 1;
+        critChance = 15;
+        */
       }
       if(lvl == 3)
 			{
 				maxHp = 40;
-				def = 1;
+				def = 2;
 				attk = 7;
 				crit = 7;
 				dext = 10;
@@ -153,7 +190,7 @@ function draw(){
       if(lvl == 4)
 			{
 				maxHp = 45;
-				def = 2;
+				def = 3;
 				attk = 8;
 				crit = 8;
 				dext = 11;
@@ -162,7 +199,7 @@ function draw(){
       if(lvl == 5)
 			{
 				maxHp = 50;
-				def = 2;
+				def = 3;
 				attk = 9;
 				crit = 12;
 				dext = 15;
@@ -198,7 +235,7 @@ function draw(){
       if(lvl == 9)
 			{
 				maxHp = 70;
-				def = 8;
+				def = 9;
 				attk = 16;
 				crit = 15;
 				dext = 30;
@@ -207,7 +244,7 @@ function draw(){
       if(lvl == 10)
 			{
 				maxHp = 75;
-				def = 10;
+        def = 11;
 				attk = 18;
 				crit = 16;
 				dext = 37;
@@ -215,7 +252,7 @@ function draw(){
       }
       //================= LVL =================
 
-      if(keyCode === 83)
+      if(keyCode === 83 && player.index != null)
       {
         keyCode = 0;
         monster = new Monster(lvl);
@@ -228,22 +265,59 @@ function draw(){
 				hp = maxHp;
         statsP = [maxHp, def, dext, crit, attk];
         statsM = [maxHpM, defM, dextM, critM, attkM];
-        if(statsM >= statsP)
+        for(var i = 0; i < 1; i++)
         {
-          console.log("TOO STRONG");
-        } else
-        {
-          console.log("CAN FIGHT");
+          if(statsM[i] > statsP[i] && statsM[i + 2] > statsP[i + 2] && statsM[i + 3] > statsP[i + 3] && statsM[i + 4] > statsP[i + 4])
+          {
+            console.log("TOO STRONG");
+            gameState = "fightFlight";
+          } else
+          {
+            console.log("CAN FIGHT");
+          }
         }
         turn = "player";
         turnTaken = 0;
+        song1Tim = 0;
       }
     }
     //================== FIGHTING MONSTER / BOSS ======================
 
+    if(gameState == "fightFlight")
+    {
+      turn = "";
+      textAlign(CENTER);
+      textSize(40);
+      fill("white");
+      text("This monster is stronger than you\nfor now", 400, 400);
+      textSize(20);
+      text("Press 'C' to continue anyway\nPress 'T' to flee\n\nOn continuing now, your gained \"xp\" shall be tripled!", 400, 490);
+      if(keyCode === 67 && player.index != null)
+      {
+        bravery = 1;
+        keyCode = 0;
+        gameState = "active";
+        turn = "player";
+      }
+    }
 
     if(gameState == "active" || gameState == "taking_turn" || gameState == "win" || gameState == "lose")
     {
+      if(gameState != "win" && gameState != "lose")
+      {
+        if(song1Tim <= 2550)
+        {
+          if(song1Tim == 1)
+          {
+            battleSong.play();
+          }
+          song1Tim++;
+        } 
+      }
+      if(gameState == "win" || gameState == "lose")
+      {
+        battleSong.stop();
+      }
       //================== CHOOSING ATTACK / HEAL / ACT ======================
       if(turn == "player")
       {
@@ -387,10 +461,19 @@ function draw(){
       {
         monsTime = 0;
         monsTran = 0;
-				gameState = "win2";
-				missSprite.destroy();
+        gameState = "win2";
+        if(missSprite != undefined)
+        {
+          missSprite.destroy();
+        }
         game.start();
-        xp = xp + xpM;
+        if(bravery == 1)
+        {
+          xp = xp + (xpM * 3);
+        } else
+        {
+          xp = xp + xpM;
+        }
         player.xp = xp;
         //console.log(gameState);
         player.update();
@@ -513,10 +596,20 @@ function draw(){
             strokeWeight(3);
             stroke(255,0,0,monsTran);
             fill(255,0,0,monsTran);
-            text("YOU WIN! YOU GAINED " + xpM + " XP!", 400,400);
-            textSize(25);
-            strokeWeight(2);
-            text("PRESS W TO RESET", 400,440);
+            if(bravery == 1)
+            {
+              text("YOU WIN! YOU GAINED 3x" + xpM + " XP\nFOR YOUR COURAGE", 400,400);
+              textSize(25);
+              strokeWeight(2);
+              text("PRESS W TO RESET", 400,440);
+            } else 
+            {
+              text("YOU WIN! YOU GAINED " + xpM + " XP!", 400,400);
+              textSize(25);
+              strokeWeight(2);
+              text("PRESS W TO RESET", 400,440);
+            }
+            
             if(monsTran < 255)
             {
               monsTran = monsTran + 5;
@@ -640,6 +733,9 @@ function reset(){
   loseTime = 0;
   loseTran = 0;
   loseTran2 = 0;
-  missSprite.destroy();
+  if(missSprite != undefined)
+  {
+    missSprite.destroy();
+  }
   showDmg = undefined;
 }
