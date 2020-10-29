@@ -25,6 +25,7 @@ class Monster {
         if(m_ == 5)
         {
             m = Math.round(random(23,39));
+            //m = 23;
         }
         if(m_ == 6)
         {
@@ -370,11 +371,15 @@ class Monster {
                 }
             }
             if(heal <= 25)
-            {
+            {   
                 hpM = hpM + Math.round(random(4,12));
+                if(hpM > maxHpM)
+                {
+                    hpM = maxHpM;
+                }
                 healSnd.play();
                 console.log("heal");
-                turn = "player"
+                hurtTime = 0;
             }
         }
     }
