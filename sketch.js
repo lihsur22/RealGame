@@ -1,20 +1,22 @@
 var player, fightObj, itemObj, checkObj, turnStart = 1;
-var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 0, xpNeeded = 0, bravery = 0;
+var maxHp, hp, def, dext, crit, attk, critChance, xp = 0, lvl = 1, xpNeeded = 0, bravery = 0, state = "";
 var statsP = [];
 var gameState = "", enemyState = "", turn = "";
 var monster, sign = 1;
-var maxHpM, hpM, defM, dextM, critM, attkM, critChanceM, xpM, critMS = 0, name;
+var maxHpM, hpM, defM, dextM, critM, attkM, critChanceM, xpM, critMS = 0, name, ability, bossMons = 0;
 var statsM = [];
 var turnTaken, hideStats, hideTime, hideMiss, hideMissM, showDmg;
-var missSprite, monsterDes, hurtTime;
+var shine = 0, missSprite, monsterDes, hurtTime = 0, poisonTime = 0, poisonedFor;
 
 var eventDelay, monsTime, monsTran, loseTime = 0, loseTran = 0, loseTran2 = 0;
 
 var db, form, player, playCount = 0, allPlayer, playerNames = [], playerPassws = [];
 var dmgDealt;
 
-var dmgSnd, lvlupSnd, battleSong, song1Tim = 0;
+var dmgSnd, lvlupSnd, battleSong, winSnd, healSnd, menuSong, boss1Song;
+var song1Tim = 0, menuSongTim = 0, boss1SongTim = 0;
 
+var monsts = [];
 
 /*var a = 0, lim = 100000000, j = 2;*/
 
@@ -22,7 +24,12 @@ function preload(){
   soundFormats('ogg');
   dmgSnd = loadSound("assets/sounds/snd_damage");
   lvlupSnd = loadSound("assets/sounds/snd_levelup");
+  winSnd = loadSound("assets/sounds/snd_win");
+  healSnd = loadSound("assets/sounds/snd_save1")
+
   battleSong = loadSound("assets/sounds/battle");
+  menuSong = loadSound("assets/sounds/mus_wind");
+  boss1Song = loadSound("assets/sounds/checkers")
 }
 
 
@@ -58,10 +65,7 @@ function draw(){
   }
   if(sign == 0)
   {
-    if(hurtTime !== 0)
-    {
-      background(0);
-    }
+    background(0);
     if(hurtTime > 0)
     {
       background(255,0,0,hurtTime)
@@ -124,6 +128,19 @@ function draw(){
     //================== FIGHTING MONSTER / BOSS ======================
     if(gameState == "rest" || gameState == "logging_in")
     {
+      if(menuSongTim == 250)
+      {
+        menuSongTim = 0;
+      }
+      if(menuSongTim < 250)
+      {
+        if(menuSongTim == 1)
+        {
+          menuSong.play();
+        }
+        menuSongTim++;
+      }
+
       textAlign(CENTER);
       textSize(40);
       fill("white");
@@ -146,7 +163,7 @@ function draw(){
 
       if(lvl !== 1)
       {
-        xpNeeded = ((10 * lvl * lvl) + (20 * lvl));
+        xpNeeded = ((10 * lvl * lvl) + (50 * lvl));
       }
       
       //================= LVL =================
@@ -254,8 +271,10 @@ function draw(){
 
       if(keyCode === 83 && player.index != null)
       {
+        menuSong.stop();
         keyCode = 0;
-        monster = new Monster(lvl);
+        //monster = new Monster(lvl);
+        monsts.push(new Monster(lvl));
         gameState = "active";
         enemyState = "normal";
         fightObj = new Fight;
@@ -303,25 +322,57 @@ function draw(){
 
     if(gameState == "active" || gameState == "taking_turn" || gameState == "win" || gameState == "lose")
     {
-      if(gameState != "win" && gameState != "lose")
+      
+      if(gameState != "win" && gameState != "lose" && bossMons == true)
       {
-        if(song1Tim <= 2550)
+        if(boss1SongTim == 2550)
+        {
+          boss1SongTim = 0;
+        }
+        if(boss1SongTim < 2550)
+        {
+          if(boss1SongTim == 1)
+          {
+            boss1Song.play();
+          }
+          boss1SongTim++;
+        }
+      }
+      if(gameState != "win" && gameState != "lose" && bossMons == false)
+      {
+        if(song1Tim == 2550)
+        {
+          song1Tim = 0;
+        }
+        if(song1Tim < 2550)
         {
           if(song1Tim == 1)
           {
             battleSong.play();
           }
           song1Tim++;
-        } 
+        }
       }
-      if(gameState == "win" || gameState == "lose")
+
+      if(poisonTime == 0 && hurtTime == null)
       {
-        battleSong.stop();
+        if(shine <= 0)
+        {
+          shine = 250;
+        }
+        if(shine > 0)
+        {
+          background(50, 50, 50, shine);
+          shine = shine - 10;
+        }
       }
       //================== CHOOSING ATTACK / HEAL / ACT ======================
       if(turn == "player")
       {
-        monster.display();
+        for(var i = 0; i < monsts.length; i++)
+        {
+          monsts[i].display();
+        }
         if(turnStart == 1)
         {
           fightObj.chosen = 1;
@@ -340,8 +391,55 @@ function draw(){
       }
       //================== PLAYER STATS ======================
 
-      if(enemyState == "normal" && turn == "player")
+      if(gameState == "active" || gameState == "taking_turn")
       {
+        if(state == "poisoned_1" && poisonedFor != 0)
+        {
+          if(poisonTime <= 0)
+          {
+            poisonTime = 250;
+            hp = hp - 1;
+            poisonedFor = poisonedFor - 1;
+            console.log(poisonedFor);
+          }
+          if(poisonTime > 0)
+          {
+            background(2, 156, 14, poisonTime);
+            poisonTime = poisonTime - 6;
+          }
+        }
+
+        if(state == "poisoned_2" && poisonedFor != 0)
+        {
+          if(poisonTime <= 0)
+          {
+            poisonTime = 250;
+            hp = hp - 2;
+            poisonedFor = poisonedFor - 1;
+            console.log(poisonedFor);
+          }
+          if(poisonTime > 0)
+          {
+            background(2, 156, 14, poisonTime);
+            poisonTime = poisonTime - 8;
+          }
+        }
+
+        if(state == "poisoned_3" && poisonedFor != 0)
+        {
+          if(poisonTime <= 0)
+          {
+            poisonTime = 250;
+            hp = hp - 2;
+            poisonedFor = poisonedFor - 1;
+            console.log(poisonedFor);
+          }
+          if(poisonTime > 0)
+          {
+            background(2, 156, 14, poisonTime);
+            poisonTime = poisonTime - 10;
+          }
+        }
         //================== CHECKING ======================
         if(checkObj.chosen == 1 && keyCode === ENTER)
         {
@@ -399,7 +497,7 @@ function draw(){
       {
         hideMiss = null;
         hideTime = 20;
-        missSprite = createSprite(monster.body.x, monster.body.y);
+        missSprite = createSprite(monsts[0].body.x, monsts[0].body.y);
         missSprite.velocityY = -7;
         missSprite.lifetime = 10;
         missSprite.visible = false;
@@ -408,7 +506,7 @@ function draw(){
       {
         showDmg = null;
         hideTime = 20;
-        missSprite = createSprite(monster.body.x, monster.body.y);
+        missSprite = createSprite(monsts[0].body.x, monsts[0].body.y);
         missSprite.velocityY = -7;
         missSprite.lifetime = 10;
         missSprite.visible = false;
@@ -421,7 +519,7 @@ function draw(){
         itemObj.chosen = 0;
         checkObj.chosen = 0;
         enemyState = "attack";
-        turn = "enemy2";     
+        turn = "enemy2";   
       }
 
       if(turn == "enemy2")
@@ -441,7 +539,7 @@ function draw(){
           }
           if(monsterDes === 0)
           {
-            monster.attack();
+            monsts[0].attack();
             enemyState = "normal";
           }
         }
@@ -459,6 +557,8 @@ function draw(){
       //==================== WIN ====================
       if(gameState == "win")
       {
+        battleSong.stop();
+        boss1Song.stop();
         monsTime = 0;
         monsTran = 0;
         gameState = "win2";
@@ -485,6 +585,8 @@ function draw(){
       //==================== LOSE ====================
       if(gameState == "lose")
       {
+        battleSong.stop();
+        boss1Song.stop();
 				missSprite.destroy();
         if(loseTime < 10000)
         {
@@ -496,14 +598,14 @@ function draw(){
               loseTran2 += 5
             }
           }
-          if(loseTime == 100)
+          if(loseTime == 5)
           {
             player.xp = 0;
             player.update();
           }
           if(loseTime >= 100)
           {
-            monster.body.destroy();
+            monsts[0].body.destroy();
             textAlign(CENTER);
             textSize(40);
             strokeWeight(3);
@@ -588,9 +690,13 @@ function draw(){
       {
         if(monsTime < 10000)
         {
+          if(monsTime == 100)
+          {
+            winSnd.play();
+          }
           if(monsTime >= 100)
           {
-            monster.body.destroy();
+            monsts[0].body.destroy();
             textAlign(CENTER);
             textSize(40);
             strokeWeight(3);
@@ -725,6 +831,7 @@ function keyReleased(){
 }
 
 function reset(){
+  state = "";
   itemObj.chosen = 0;
   checkObj.chosen = 0;
   fightObj.chosen = 0;
@@ -738,4 +845,5 @@ function reset(){
     missSprite.destroy();
   }
   showDmg = undefined;
+  menuSongTim = 0;
 }

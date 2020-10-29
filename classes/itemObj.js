@@ -34,6 +34,15 @@ class Item {
     }
 
     selected(){
-        hp = hp + (Math.round(random(4,10)));
+        if(lvl <= 2)
+        {
+            hp = hp + (Math.round(random(4,10)));
+            healSnd.play();
+        }
+        if(lvl <= 5 && lvl > 2)
+        {
+            hp = hp + (Math.round(random(6,13)));
+            healSnd.play();
+        }
     }
 };

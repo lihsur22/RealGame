@@ -37,7 +37,6 @@ class Fight {
         var miss = Math.round(random(1,100));
         var critC = Math.round(random(1,100));
         var critS = 0;
-        dmgSnd.play();
         if(critC < critChance && miss > dextM)
         {
             critS = 1;
@@ -45,28 +44,40 @@ class Fight {
         if(miss < dextM)
         {
             hideMiss = 1;
-        } else if(defM !== 0 && critS == 0)
+        } else if(defM !== 0 && defM != 1 && critS == 0)
         {
             hpM = hpM - (Math.round(attk / defM));
             dmgDealt = hpM
             showDmg = 1;
+            dmgSnd.play();
         } else if(defM === 1 && critS == 0)
         {
             hpM = hpM - (Math.round(attk - (attk/10)));
             dmgDealt = hpM;
             showDmg = 1;
+            dmgSnd.play();
         } else if(critS == 0)
         {
             hpM = hpM - attk;
             dmgDealt = hpM;
             showDmg = 1;
-        } else
+            dmgSnd.play();
+        } else if(defM != 0 && defM != 1 && critS == 1)
         {
             hpM = hpM - Math.round(attk + (crit * random(2,6) / defM));
             dmgDealt = hpM;
             console.log("critted");
             critS = 0;
             showDmg = 1;
+            dmgSnd.play();
+        } else if(defM == 1 && critS == 1)
+        {
+            hpM = hpM - Math.round(attk + (crit * random(2,6) / (crit * 2 / 5)));
+            dmgDealt = hpM;
+            console.log("critted");
+            critS = 0;
+            showDmg = 1;
+            dmgSnd.play();
         }
     }
 };
