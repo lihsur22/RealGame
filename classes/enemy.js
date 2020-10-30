@@ -17,6 +17,7 @@ class Monster {
         if(m_ == 3)
         {
             m = Math.round(random(3,23));
+            m = 23;
         }
         if(m_ == 4)
         {
@@ -307,10 +308,10 @@ class Monster {
                 if(poisonedFor < 4)
                 {
                     poisonedFor = 12;
-                } else
-                {
-                    poisonedFor = poisonedFor;
                 }
+            } else
+            {
+                poisonedFor = poisonedFor;
             }
         }
         if(ability == "poison2")

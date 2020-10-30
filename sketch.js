@@ -6,7 +6,7 @@ var monster, sign = 1;
 var maxHpM, hpM, defM, dextM, critM, attkM, critChanceM, xpM, critMS = 0, name, ability, bossMons = 0;
 var statsM = [];
 var turnTaken, hideStats, hideTime, hideMiss, hideMissM, showDmg;
-var shine = 0, missSprite, monsterDes, hurtTime = 0, poisonTime = 0, poisonedFor;
+var shine = 0, missSprite, monsterDes, hurtTime = 0, poisonTime = 0, poisonedFor = 0;
 
 var eventDelay, monsTime, monsTran, loseTime = 0, loseTran = 0, loseTran2 = 0;
 
@@ -18,7 +18,7 @@ var song1Tim = 0, menuSongTim = 0, boss1SongTim = 0;
 
 var monsts = [];
 
-/*var a = 0, lim = 100000000, j = 2;*/
+//var a = 0, lim = 100000000, j = 2;
 
 function preload(){
   soundFormats('ogg');
