@@ -44,15 +44,21 @@ class Fight {
         if(miss < dextM)
         {
             hideMiss = 1;
-        } else if(defM !== 0 && defM != 1 && critS == 0)
+        } else if(defM != 0 && defM != 1 && critS == 0)
         {
             hpM = hpM - (Math.round(attk / defM));
             dmgDealt = hpM
             showDmg = 1;
             dmgSnd.play();
-        } else if(defM === 1 && critS == 0)
+        } else if(defM == 1 && critS == 0)
         {
             hpM = hpM - (Math.round(attk - (attk/10)));
+            dmgDealt = hpM;
+            showDmg = 1;
+            dmgSnd.play();
+        } else if(defM == 0 && critS == 0)
+        {
+            hpM = hpM - attk;
             dmgDealt = hpM;
             showDmg = 1;
             dmgSnd.play();
@@ -73,6 +79,14 @@ class Fight {
         } else if(defM == 1 && critS == 1)
         {
             hpM = hpM - Math.round(attk + (crit * random(2,6) / (crit * 2 / 5)));
+            dmgDealt = hpM;
+            console.log("critted");
+            critS = 0;
+            showDmg = 1;
+            dmgSnd.play();
+        } else if(defM == 0 && critS == 1)
+        {
+            hpM = hpM - Math.round(attk + (crit * random(2,6)));
             dmgDealt = hpM;
             console.log("critted");
             critS = 0;
